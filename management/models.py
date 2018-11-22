@@ -75,7 +75,7 @@ FILTER_CONDITIONALS = (
 class Tag(models.Model):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=200)
-    values = models.ManyToManyField(RawDataSource, through='ValuesToTag', related_name='tags')
+    # values = models.ManyToManyField(RawDataSource, through='ValuesToTag', related_name='tags')
     negate_conditional = models.BooleanField(default=False)
 
     def apply_filters_source(self, rds):
@@ -117,7 +117,8 @@ class Tag(models.Model):
         return self.name
 
 class ValuesToTag(models.Model):
-    raw_data_source = models.ForeignKey(RawDataSource, on_delete=models.PROTECT)
+    #raw_data_source = models.ForeignKey(RawDataSource, on_delete=models.PROTECT)
+    raw_data_source = models.IntegerField()
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     enable = models.IntegerField(default=1) # By default we enable it, only to disable manually. 
     automatic = models.IntegerField()
