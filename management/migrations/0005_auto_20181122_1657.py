@@ -14,15 +14,15 @@ class Migration(migrations.Migration):
     ]
 
     state_operations = [
-        migrations.AddField(
-            model_name='tag',
-            name='values',
-            field=models.ManyToManyField(related_name='tags', through='management.ValuesToTag', to='core.RawDataSource'),
-        ),
         migrations.AlterField(
             model_name='valuestotag',
             name='raw_data_source',
             field=models.ForeignKey(on_delete=None, to='core.RawDataSource'),
+        ),
+        migrations.AddField(
+            model_name='tag',
+            name='values',
+            field=models.ManyToManyField(related_name='tags', through='management.ValuesToTag', to='core.RawDataSource'),
         ),
     ]
 
