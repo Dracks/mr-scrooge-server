@@ -5,6 +5,8 @@ import numpy as np
 
 from .utils import splitDataset
 
+MINIMUM_VALUES = 3
+
 def normalize_row(row):
     data = [
         float(ord(c))
@@ -15,7 +17,7 @@ def normalize_row(row):
     data.append(float(movement_date.day))
     data.append(float(movement_date.month))
     data.append(float(movement_date.year))
-    return data
+    return np.array(data)
 
 def compare(reals, results):
     errors = 0.0
@@ -25,12 +27,12 @@ def compare(reals, results):
         real = reals[i]
         if pred != real:
             errors += 1
-    return errors/size
+    return 1-(errors/size)
 
 def getData(dataset, tag):
     in_values = [ normalize_row(row) for row in dataset]
     out_values = [ int(tag in row["tags"]) for row in dataset]
-    return in_values, out_values
+    return np.array(in_values), np.array(out_values)
 
 def build():
     model = Sequential()
@@ -45,20 +47,21 @@ def test(dataset, tag, splitRatio):
     trainingSet, testSet = splitDataset(dataset, splitRatio)
 
     training_in, training_out = getData(trainingSet, tag)
-
-    print(training_out)
+    true_values_len = len([ value for value in training_out if value==1])
+    if true_values_len < MINIMUM_VALUES or len(training_out)-true_values_len < MINIMUM_VALUES:
+        return ("No values", true_values_len)
 
     model = build()
 
-    model.fit(training_in, training_out, epochs=100, batch_size=32)
+    model.fit(training_in, training_out, epochs=20, batch_size=32, verbose=0)
 
     test_in, test_out = getData(testSet, tag)
 
-    predictions = model.predict(test)
+    predictions = model.predict(test_in)
     # round predictions
     rounded = [round(x[0]) for x in predictions]
 
-    print(compare(rounded, test_out))
+    return (compare(rounded, test_out), true_values_len, len(training_out)-true_values_len)
 
 def donut_test():
     def donut_fn(x,y):
