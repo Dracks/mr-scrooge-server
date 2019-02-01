@@ -16,7 +16,7 @@ def load_data(**filter):
             "movement_name": normalize_name(rds.movement_name),
             "value": rds.value,
             "date": rds.date,
-            "tags": [tag.name for tag in rds.tags.all()]
+            "tags": [tag.pk for tag in rds.tags.all()]
         }
         for rds in data
     ]
