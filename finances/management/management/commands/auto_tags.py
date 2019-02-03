@@ -19,10 +19,12 @@ class Command(BaseCommand):
         if options.get('bayesian'):
             bayesian.test(dataset, 0.5, 0.67)
         if options.get('keras'):
-            tags = utils.load_tags()
+            print(keras.test(dataset, 2, 0.69))
+            """tags = utils.load_tags()
             result = {}
             for tag_pk, name in tags.items():
                 result[name] = keras.test(dataset, tag_pk, 0.75)
 
             print(result)
+            """
         

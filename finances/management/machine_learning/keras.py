@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
+from keras.layers import Dense, Dropout, Activation, MaxPooling1D, Conv1D
 import keras
 import numpy as np
 
@@ -36,9 +36,11 @@ def getData(dataset, tag):
 
 def build():
     model = Sequential()
-    model.add(Dense(300, input_dim=260, activation='relu'))
-    model.add(Dense(250, activation='relu'))
+    model.add(Dense(260, input_dim=260, activation='relu'))
+    model.add(Dense(1500, activation='relu'))
+    model.add(Dense(150, activation='relu'))
     model.add(Dense(80, activation='relu'))
+    model.add(Dense(40, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
@@ -46,22 +48,22 @@ def build():
 def test(dataset, tag, splitRatio):
     trainingSet, testSet = splitDataset(dataset, splitRatio)
 
-    training_in, training_out = getData(trainingSet, tag)
+    training_in, training_out = getData(dataset, tag)
     true_values_len = len([ value for value in training_out if value==1])
     if true_values_len < MINIMUM_VALUES or len(training_out)-true_values_len < MINIMUM_VALUES:
         return ("No values", true_values_len)
 
     model = build()
 
-    model.fit(training_in, training_out, epochs=20, batch_size=32, verbose=0)
+    model.fit(training_in, training_out, epochs=100, batch_size=32, verbose=0)
 
-    test_in, test_out = getData(testSet, tag)
+    test_in, test_out = getData(dataset, tag)
 
     predictions = model.predict(test_in)
     # round predictions
     rounded = [round(x[0]) for x in predictions]
 
-    return (compare(rounded, test_out), true_values_len, len(training_out)-true_values_len)
+    return (compare(rounded, test_out), true_values_len/len(training_in), 1- true_values_len/len(training_in))
 
 def donut_test():
     def donut_fn(x,y):
