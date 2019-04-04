@@ -3,7 +3,7 @@ from functools import reduce
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
-from finances.core.models import RawDataSource
+from finances.core.models import RawDataSource, Label
 
 # Create your models here.
 class FilterConditionals:
@@ -70,9 +70,6 @@ FILTER_CONDITIONALS = (
     (FilterConditionals.LOWER_EQUAL, "Lower or equal than"),
     (FilterConditionals.LOWER, "Lower than")
 )
-
-class Label(models.Model):
-    name = models.CharField(max_length=200)
 
 
 class Rule(models.Model):

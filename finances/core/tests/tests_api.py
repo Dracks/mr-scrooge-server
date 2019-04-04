@@ -7,7 +7,7 @@ import random
 from datetime import date
 
 from finances.session.tests import get_user
-from finances.core.models import RawDataSource
+from finances.core.models import RawDataSource, Label
 from finances.management.models import Tag, ValuesToTag
 
 class RawDataSourceApiTest(TestCase):
@@ -75,3 +75,21 @@ class RawDataSourceApiTest(TestCase):
         rdsQuery = RawDataSource.objects.get(pk=self.rds.pk)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(rdsQuery.description, None)
+
+
+class LabelApiTest(TestCase):
+    def setUp(self):
+        self.label = Label(name="Dr Who")
+        self.label.save()
+        self.user = get_user()
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def tearDown(self):
+        self.label.delete()
+
+    def test_get_list(self):
+        response = self.client.get('/api/label/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 1)

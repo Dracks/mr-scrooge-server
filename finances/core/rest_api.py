@@ -4,10 +4,15 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import RawDataSource
-from .serializers import RawDataSerializer
+from .models import RawDataSource, Label
+from .serializers import RawDataSerializer, LabelSerializer
 from finances.management.models import ValuesToTag, Tag
 from finances.management.serializers import ValuesToTagSerializer
+
+class LabelViewSet(viewsets.ModelViewSet):
+    queryset = Label.objects.all()
+    serializer_class = LabelSerializer
+    permission_classes = (IsAuthenticated,)
 
 class RawDataSourceViewSet(viewsets.ReadOnlyModelViewSet, viewsets.mixins.CreateModelMixin):
     queryset = RawDataSource.objects.all()

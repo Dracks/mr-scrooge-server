@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import RawDataSource
+from .models import RawDataSource, Label
 from finances.management.models import ValuesToTag, Tag
 
 
@@ -37,3 +37,8 @@ class RawDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = RawDataSource
         fields = ('kind', 'id', 'movement_name', 'date', 'date_value', 'details', 'description', 'value', 'tags')
+
+class LabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Label
+        fields = ('id', 'name')

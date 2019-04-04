@@ -5,7 +5,7 @@ from rest_framework import status
 import json
 
 from finances.session.tests import get_user
-from ..models import Tag
+from ..models import Tag, Label
 
 class TagApiTest(TestCase):
     def setUp(self):
