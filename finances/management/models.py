@@ -69,8 +69,73 @@ FILTER_CONDITIONALS = (
     (FilterConditionals.GREATER_EQUAL, "Greater or equal than"),
     (FilterConditionals.LOWER_EQUAL, "Lower or equal than"),
     (FilterConditionals.LOWER, "Lower than")
-
 )
+
+class Label(models.Model):
+    name = models.CharField(max_length=200)
+
+
+class Rule(models.Model):
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.PROTECT)
+    assign_labels = models.ManyToManyField(Label)
+
+
+    def check_conditions(self, value):
+        is_false = False
+        list_conds = self.conditions.all()
+        index = 0
+        while index < len(list_conds) and not is_false:
+            is_false = not list_conds[index].check_conditions(value)
+            index += 1
+        return not is_false
+
+
+    def check_with_parent(self, value):
+        if self.check_conditions(value):
+            if self.parent:
+                return self.parent.check_with_parent(value)
+            else:
+                return True
+        else:
+            return False
+
+
+class AbstractCondition(models.Model):
+    type_conditional = models.CharField(max_length=1, choices=FILTER_CONDITIONALS)
+    conditional = models.CharField(max_length=200)
+    negate = models.BooleanField()
+
+
+    __cached_func = None
+
+
+    def isValid(self, data):
+        if not self.__cached_func:
+            self.__cached_func = FILTER_FUNCTIONS.get(self.type_conditional, lambda e, y: False)
+        result = self.__cached_func(self.conditional, data)
+        return result != self.negate
+
+
+    def __str__(self):
+        return "{}:{}".format(self.type_conditional, self.conditional)
+
+
+class RuleAndCondition(AbstractCondition):
+    rule = models.ForeignKey(Rule, on_delete=models.PROTECT, related_name="conditions")
+
+    def check_conditions(self, value):
+        is_true = self.isValid(value)
+        list_ors = self.orConditions.all()
+        index = 0
+        while index < len(list_ors) and not is_true:
+            is_true = list_ors[index].isValid(value)
+            index += 1
+        return is_true
+
+
+class RuleOrCondition(AbstractCondition):
+    orCondition = models.ForeignKey(RuleAndCondition, on_delete=models.PROTECT, related_name='orConditions')
+
 
 class Tag(models.Model):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.PROTECT)

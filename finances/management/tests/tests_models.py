@@ -2,7 +2,97 @@ from django.test import TestCase
 from datetime import date
 
 from ..models import Tag, Filter, FilterConditionals, RawDataSource, ValuesToTag
+from ..models import Label, Rule, RuleAndCondition, RuleOrCondition
 # Create your tests here.
+
+
+class RulesModelTest(TestCase):
+    def setUp(self):
+        self.label = Label(name="Ping")
+        self.label.save()
+
+        self.rule = Rule()
+        self.rule.save()
+        self.rule_child = Rule(parent=self.rule)
+        self.rule_child.save()
+
+        self.conditionals_list = []
+
+        c = RuleAndCondition(
+            rule = self.rule,
+            type_conditional = FilterConditionals.GREATER,
+            conditional = 0,
+            negate = False
+        )
+        c.save()
+
+        self.conditionals_list.append(c)
+
+        c = RuleAndCondition(
+            rule=self.rule_child,
+            type_conditional=FilterConditionals.GREATER,
+            conditional=-3,
+            negate=False
+        )
+        c.save()
+        self.conditionals_list.append(c)
+
+        c = RuleAndCondition(
+            rule=self.rule_child,
+            type_conditional = FilterConditionals.LOWER,
+            conditional=3,
+            negate=False
+        )
+        c.save()
+        self.conditionals_list.append(c)
+
+        self.rds_list = []
+        for i in range(0,10):
+            rds = RawDataSource(kind="test")
+            rds.value = i*2-5
+            rds.movement_name = "movement {}".format(i)
+            rds.date = date.today()
+            rds.save()
+            self.rds_list.append(rds)
+
+    def tearDown(self):
+        [ c.delete() for c in self.conditionals_list]
+        [ rds.delete() for rds in self.rds_list]
+        self.label.delete()
+        self.rule_child.delete()
+        self.rule.delete()
+
+    def test_most_basic(self):
+        self.assertTrue(self.rule.check_conditions(self.rds_list[-1]))
+        self.assertFalse(self.rule.check_conditions(self.rds_list[0]))
+
+    def test_two_ands(self):
+        result = [
+            rds.movement_name for rds in self.rds_list
+            if self.rule_child.check_conditions(rds)
+        ]
+        self.assertEqual(len(result), 2)
+
+    def test_with_parent(self):
+        result = [
+            rds.movement_name for rds in self.rds_list
+            if self.rule_child.check_with_parent(rds)
+        ]
+        self.assertEqual(len(result), 1)
+
+    def test_or_rule(self):
+        or_rule = RuleOrCondition(
+            orCondition = self.conditionals_list[0],
+            type_conditional = FilterConditionals.SUFFIX,
+            conditional = 0,
+            negate = True
+        )
+        or_rule.save()
+        self.conditionals_list.insert(0,or_rule)
+        self.assertFalse(self.rule.check_conditions(self.rds_list[0]))
+        self.assertTrue(self.rule.check_conditions(self.rds_list[1]))
+
+
 class TagModelTest(TestCase):
     def setUp(self):
         self.rds_list = []
