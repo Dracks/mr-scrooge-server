@@ -5,12 +5,28 @@ from rest_framework import status
 import json
 
 from finances.session.tests import get_user
-from ..models import Tag, Rule, RuleAndCondition, RuleOrCondition
+from ..models import Tag, Rule, RuleAndCondition, RuleOrCondition, FilterConditionals
 
 class RulesApiTest(TestCase):
     def setUp(self):
         rule1 = Rule()
         rule1.save()
+
+        and_condition = RuleAndCondition(
+            rule=rule1,
+            type_conditional=FilterConditionals.CONTAINS,
+            conditional="1",
+            negate=False
+        )
+        and_condition.save()
+
+        or_condition = RuleOrCondition(
+            or_group=and_condition,
+            type_conditional=FilterConditionals.GREATER,
+            conditional="3",
+            negate=True
+        )
+        or_condition.save()
 
         self.user = get_user()
         self.client = APIClient()
@@ -25,8 +41,25 @@ class RulesApiTest(TestCase):
         response = self.client.get('/api/rule/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = json.loads(response.content)
-        print(data)
-        self.assertEqual(len(data), 1)
+        self.assertEqual(data, [{
+            'id': 1,
+            'parent': None,
+            'assign_labels': [],
+            'conditions': [{
+                'rule': 1,
+                'id': 1,
+                'type_conditional': 'c',
+                'conditional': '1',
+                'negate': False,
+                'or_conditions': [{
+                    'or_group': 1,
+                    'id': 1,
+                    'type_conditional': 'g',
+                    'conditional': '3',
+                    'negate': True
+                }]
+            }]
+        }])
 
 
 class TagApiTest(TestCase):

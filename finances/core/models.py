@@ -14,7 +14,7 @@ class AbstractRawDataSource(models.Model):
         abstract = True
 
 class RawDataSource(AbstractRawDataSource):
-    kind=models.CharField(max_length=255)
+    kind = models.CharField(max_length=255)
     description = models.TextField(default=None, null=True, blank=True)
     labels = models.ManyToManyField('Label', through='ValueToLabel', related_name='tags')
 

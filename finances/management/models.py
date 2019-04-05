@@ -50,6 +50,7 @@ class FilterConditionals:
         check = float(value)
         return data.value < check
 
+
 FILTER_FUNCTIONS={
     FilterConditionals.CONTAINS: FilterConditionals.contains,
     FilterConditionals.PREFIX: FilterConditionals.prefix,
@@ -117,6 +118,9 @@ class AbstractCondition(models.Model):
     def __str__(self):
         return "{}:{}".format(self.type_conditional, self.conditional)
 
+    class Meta:
+        abstract = True
+
 
 class RuleAndCondition(AbstractCondition):
     rule = models.ForeignKey(Rule, on_delete=models.PROTECT, related_name="conditions")
@@ -132,7 +136,7 @@ class RuleAndCondition(AbstractCondition):
 
 
 class RuleOrCondition(AbstractCondition):
-    orCondition = models.ForeignKey(RuleAndCondition, on_delete=models.PROTECT, related_name='orConditions')
+    or_group = models.ForeignKey(RuleAndCondition, on_delete=models.PROTECT, related_name='or_conditions')
 
 
 class Tag(models.Model):
