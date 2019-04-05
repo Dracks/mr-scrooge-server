@@ -3,7 +3,7 @@ from functools import reduce
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
-from finances.core.models import RawDataSource, Label
+from finances.core.models import RawDataSource, Label, ValueToLabel
 
 # Create your models here.
 class FilterConditionals:
@@ -75,6 +75,7 @@ FILTER_CONDITIONALS = (
 class Rule(models.Model):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.PROTECT)
     assign_labels = models.ManyToManyField(Label)
+    labels_setted = models.ManyToManyField(ValueToLabel)
 
 
     def check_conditions(self, value):

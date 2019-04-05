@@ -5,7 +5,29 @@ from rest_framework import status
 import json
 
 from finances.session.tests import get_user
-from ..models import Tag, Label
+from ..models import Tag, Rule, RuleAndCondition, RuleOrCondition
+
+class RulesApiTest(TestCase):
+    def setUp(self):
+        rule1 = Rule()
+        rule1.save()
+
+        self.user = get_user()
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def tearDown(self):
+        RuleOrCondition.objects.all().delete()
+        RuleAndCondition.objects.all().delete()
+        Rule.objects.all().delete()
+
+    def test_get(self):
+        response = self.client.get('/api/rule/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        print(data)
+        self.assertEqual(len(data), 1)
+
 
 class TagApiTest(TestCase):
     def setUp(self):

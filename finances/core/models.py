@@ -16,7 +16,7 @@ class AbstractRawDataSource(models.Model):
 class RawDataSource(AbstractRawDataSource):
     kind=models.CharField(max_length=255)
     description = models.TextField(default=None, null=True, blank=True)
-    labels = models.ManyToManyField('Label', through='ValuesToLabels', related_name='tags')
+    labels = models.ManyToManyField('Label', through='ValueToLabel', related_name='tags')
 
     def __str__(self):
         parent = AbstractRawDataSource.__str__(self)
@@ -31,7 +31,7 @@ class RawDataSource(AbstractRawDataSource):
 class Label(models.Model):
     name = models.CharField(max_length=200)
 
-class ValuesToLabels(models.Model):
+class ValueToLabel(models.Model):
     raw_data_source = models.ForeignKey(RawDataSource, on_delete=models.PROTECT)
     label = models.ForeignKey(Label, on_delete=models.CASCADE)
     enable = models.IntegerField(default=1) # By default we enable it, only to disable manually. 

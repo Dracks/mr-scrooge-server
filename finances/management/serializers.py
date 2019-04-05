@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import Tag, Filter, ValuesToTag
+from .models import Tag, Filter, ValuesToTag, Rule, Label
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    assign_labels = serializers.PrimaryKeyRelatedField(queryset=Label.objects.all(), many=True)
+    class Meta:
+        model = Rule
+        fields = ('id', 'parent', 'assign_labels')
+
 
 class TagSerializer(serializers.ModelSerializer):
     children = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
