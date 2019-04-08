@@ -82,7 +82,7 @@ class RulesModelTest(TestCase):
 
     def test_or_rule(self):
         or_rule = RuleOrCondition(
-            orCondition = self.conditionals_list[0],
+            or_group = self.conditionals_list[0],
             type_conditional = FilterConditionals.SUFFIX,
             conditional = 0,
             negate = True

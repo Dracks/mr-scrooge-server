@@ -127,7 +127,7 @@ class RuleAndCondition(AbstractCondition):
 
     def check_conditions(self, value):
         is_true = self.isValid(value)
-        list_ors = self.orConditions.all()
+        list_ors = self.or_conditions.all()
         index = 0
         while index < len(list_ors) and not is_true:
             is_true = list_ors[index].isValid(value)

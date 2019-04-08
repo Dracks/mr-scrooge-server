@@ -5,7 +5,7 @@ from rest_framework import status
 import json
 
 from finances.session.tests import get_user
-from ..models import Tag, Rule, RuleAndCondition, RuleOrCondition, FilterConditionals
+from ..models import Tag, Rule, RuleAndCondition, RuleOrCondition, FilterConditionals, Label
 
 class RulesApiTest(TestCase):
     def setUp(self):
@@ -28,11 +28,15 @@ class RulesApiTest(TestCase):
         )
         or_condition.save()
 
+        self.label = Label(name="Daleks")
+        self.label.save()
+
         self.user = get_user()
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def tearDown(self):
+        Label.objects.all().delete()
         RuleOrCondition.objects.all().delete()
         RuleAndCondition.objects.all().delete()
         Rule.objects.all().delete()
@@ -60,6 +64,29 @@ class RulesApiTest(TestCase):
                 }]
             }]
         }])
+
+    def test_creation(self):
+        response = self.client.post('/api/rule/', data={
+            'assign_labels': [],
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = json.loads(response.content)
+        parent_id = data['id']
+
+        response = self.client.post('/api/rule/', data={
+            'parent': parent_id,
+            'assign_labels': [self.label.id]
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = json.loads(response.content)
+        self.assertEqual(data, {
+            'id': 3,
+            'parent': parent_id,
+            'assign_labels': [self.label.id],
+            'conditions': []
+        })
+
+        Rule.objects.get(id=data['id']).delete()
 
 
 class TagApiTest(TestCase):

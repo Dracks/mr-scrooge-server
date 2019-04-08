@@ -20,7 +20,7 @@ class RawDataSource(AbstractRawDataSource):
 
     def __str__(self):
         parent = AbstractRawDataSource.__str__(self)
-        return "k:{} {}".format(self.kind,parent)
+        return "k:{} {}".format(self.kind, parent)
 
     class Meta:
         indexes = [
