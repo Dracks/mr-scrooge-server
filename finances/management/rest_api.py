@@ -3,12 +3,17 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Tag, Filter, FILTER_CONDITIONALS, Rule
-from .serializers import TagSerializer, FilterSerializer, RuleSerializer
+from .models import Tag, Filter, FILTER_CONDITIONALS, Rule, RuleAndCondition
+from .serializers import TagSerializer, FilterSerializer, RuleSerializer, RuleAndSerializer
 
 class RuleViewSet(viewsets.ModelViewSet):
     queryset = Rule.objects.all()
     serializer_class = RuleSerializer
+    permission_classes = (IsAuthenticated, )
+
+class RuleConditionsViewSet(viewsets.ModelViewSet):
+    queryset = RuleAndCondition.objects.all()
+    serializer_class = RuleAndSerializer
     permission_classes = (IsAuthenticated, )
 
 class TagViewSet(viewsets.ModelViewSet):

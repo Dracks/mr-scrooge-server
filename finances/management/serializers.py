@@ -14,7 +14,7 @@ class RuleOrSerializer(AbstractConditionSerializer):
 
 class RuleAndSerializer(AbstractConditionSerializer):
     rule = serializers.PrimaryKeyRelatedField(queryset=Rule.objects.all())
-    or_conditions = RuleOrSerializer(many=True)
+    or_conditions = RuleOrSerializer(many=True, read_only=True)
 
     class Meta:
         model = RuleAndCondition

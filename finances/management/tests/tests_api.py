@@ -89,6 +89,38 @@ class RulesApiTest(TestCase):
         Rule.objects.get(id=data['id']).delete()
 
 
+class RulesAndApiTest(TestCase):
+    def setUp(self):
+        self.rule1 = Rule()
+        self.rule1.save()
+
+        self.user = get_user()
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def tearDown(self):
+        RuleAndCondition.objects.all().delete()
+        Rule.objects.all().delete()
+
+    def test_post(self):
+        send_data = {
+            "type_conditional": "g",
+            "conditional": "kjaksdfjlaskdjflaskdjflaskdjf"
+        }
+        response = self.client.post('/api/rule_conditions/', data=send_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.content, b'{"rule":["This field is required."]}')
+
+        send_data['rule'] = self.rule1.pk
+        response = self.client.post('/api/rule_conditions/', data=send_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = json.loads(response.content)
+        obj = RuleAndCondition.objects.get(id=data['id'])
+        self.assertEqual(obj.negate, False)
+        self.assertEqual(obj.type_conditional, "g")
+
+
+
 class TagApiTest(TestCase):
     def setUp(self):
         self.tag = Tag(name="peperoni")
