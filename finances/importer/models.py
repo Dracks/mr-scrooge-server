@@ -8,21 +8,21 @@ class IMPORT_STATUS:
     ERROR = "e"
 
 IMPORT_STATUS.CHOICES = (
-    ( IMPORT_STATUS.OK, "Ok"),
-    ( IMPORT_STATUS.WARNING, "Warnings"),
-    ( IMPORT_STATUS.ERROR, "Error")
+    (IMPORT_STATUS.OK, "Ok"),
+    (IMPORT_STATUS.WARNING, "Warnings"),
+    (IMPORT_STATUS.ERROR, "Error")
 )
 
 class StatusReport(models.Model):
     kind = models.CharField(max_length=255)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now_add=True)
     file_name = models.CharField(max_length=255)
     status = models.CharField(max_length=1, choices=IMPORT_STATUS.CHOICES)
     description = models.TextField()
 
     def setWarning(self):
         if self.status == IMPORT_STATUS.OK:
-            self.status =IMPORT_STATUS.WARNING
+            self.status = IMPORT_STATUS.WARNING
             self.save()
 
     class Meta:
