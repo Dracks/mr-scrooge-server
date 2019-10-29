@@ -19,3 +19,12 @@ class TestAccount(AbstractImporter):
 
     def _creator(self, contents):
         return contents
+
+
+class TestRaiseError(AbstractImporter):
+    key = "test-account"
+    _mapping = { }
+    error_message = 'This is the error showed'
+
+    def _creator(self, contents):
+        raise Exception(self.error_message)

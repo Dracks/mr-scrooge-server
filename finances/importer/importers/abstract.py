@@ -20,17 +20,24 @@ class AbstractImporter():
 
     def __init__(self, file_name, file_path, key=None):
         assert(self.key is not 'abstract')
-        status = StatusReport()
-        status.status = IMPORT_STATUS.OK
-        status.file_name = file_name
 
-        self.status = status
-        self.source_file = self._creator(file_path)
         if key is not None:
             self.key = key
 
+        status = StatusReport()
+        status.status = IMPORT_STATUS.OK
+        status.file_name = file_name
         status.kind = self.key
         status.save()
+        self.status = status
+
+        try:
+            self.source_file = self._creator(file_path)
+        except Exception as e:
+            status.description = traceback.format_exc()
+            status.status = IMPORT_STATUS.ERROR
+            status.save()
+        self.movements = []
 
     def build(self, data):
         newSource = RawDataSource()
@@ -66,8 +73,11 @@ class AbstractImporter():
                     tags_to_filter.extend(tag.children.all())
 
     def run(self):
+        if self.status.status == IMPORT_STATUS.OK:
+            self.__run()
+
+    def __run(self):
         status = self.status
-        self.movements = []
         try:
             previous = None
             previous_status = None
