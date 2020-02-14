@@ -1,7 +1,7 @@
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, MaxPooling1D, Conv1D
 import keras
 import numpy as np
+from keras.layers import Activation, Conv1D, Dense, Dropout, MaxPooling1D
+from keras.models import Sequential
 
 from .utils import splitDataset
 
@@ -73,24 +73,24 @@ def donut_test():
         else:
             return 0
     model = Sequential()
-    model.add(Dense(12, input_dim=2, activation='relu'))
-    model.add(Dense(8, activation='relu'))
+    model.add(Dense(9, input_dim=2, activation='relu'))
+    model.add(Dense(6, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     # Generate dummy data
-    data = np.random.random((300, 2))
+    data = np.random.random((1000, 2))
     labels = np.array([[donut_fn(row[0], row[1])] for row in data])
     #labels = np.random.randint(10, size=(1000, 1))
 
     # Train the model, iterating on the data in batches of 32 samples
-    model.fit(data, labels, epochs=100, batch_size=32)
+    model.fit(data, labels, epochs=300, batch_size=32)
 
-    test = np.random.random((10, 2))
+    test = np.random.random((100, 2))
     # calculate predictions
     predictions = model.predict(test)
     # round predictions
     rounded = [round(x[0]) for x in predictions]
 
-    print(compare([donut_fn(row[0], row[1]) for row in test], rounded))
+    print("Right: {}".format(compare([donut_fn(row[0], row[1]) for row in test], rounded)))
     print([donut_fn(row[0], row[1]) for row in test])
