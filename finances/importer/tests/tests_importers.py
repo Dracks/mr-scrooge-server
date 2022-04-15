@@ -7,7 +7,7 @@ from finances.management.models import Filter, FilterConditionals, Tag
 
 from ..importers import caixa_bank, caixa_enginyers, n26, commerz_bank
 from ..models import IMPORT_STATUS, StatusReport, StatusReportRow
-from .classes.importer import SAMPLE_DATA, TestAccount
+from .classes.importer import SAMPLE_DATA, TestAccount, TestRaiseError
 
 PATH = os.path.dirname(__file__)
 
@@ -25,6 +25,15 @@ class AbstractImportTest(TestCase):
         self.subject.run()
         self.assertEqual(RawDataSource.objects.all().count(), 4)
         self.assertEqual(StatusReportRow.objects.all().count(), 4)
+
+    def test_catch_error_on_creation(self):
+        subject = TestRaiseError("error", [])
+        subject.run()
+        reports_list = StatusReport.objects.all().filter(file_name='error')
+        self.assertEqual(reports_list.count(), 1)
+        report = reports_list.first()
+        self.assertEqual(report.status, IMPORT_STATUS.ERROR)
+        self.assertIn(TestRaiseError.error_message, report.description)
 
     def test_insert_with_tag(self):
         tag = Tag(name="Parent")
