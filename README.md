@@ -1,3 +1,7 @@
+This project is merged into [MrScrooge](https://github.com/Dracks/mr-scrooge/), and thereby is archived. 
+
+
+
 # Mr Scrooge Server
 This is the view of the application [MrScrooge](https://github.com/Dracks/mr-scrooge/)
 
